@@ -1,48 +1,51 @@
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow, ipcMain} = require('electron');
 const url = require("url");
-const path = require("path");
+const path = require('path');
 
-let mainWindow
+
+let mainWindow;
+
+function handleSetTitle (event, title) {
+  const webContents = event.sender;
+  const win = BrowserWindow.fromWebContents(webContents);
+  win.setTitle(title);
+}
 
 function createWindow () {
   mainWindow = new BrowserWindow({
-    frame: false,
-    titleBarStyle: 'hidden',
-    // transparent: true,
-    width: 90,
-    height: 20,
-    webPreferences: {
-      nodeIntegration: true,
-      devTools: false //afficher la console dans la fenetre de l'app
+  //titleBarStyle: 'hidden',
+  width: 100,
+  height: 400,
+  webPreferences: {
+    nodeIntegration: true,
+    devTools: true,
+      preload: path.join(__dirname, 'preload.js')
     }
   })
 
-  mainWindow.loadURL(
-    url.format({
-      pathname: path.join(__dirname, `/dist/test-desktop-electron-app/index.html`),
-      protocol: "file:",
-      slashes: true
-    })
-  );
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  // ipcMain.on('set-title', (event, title) => {
+  //   const webContents = event.sender
+  //   const win = BrowserWindow.fromWebContents(webContents)
+  //   win.setTitle(title)
+  // })
+  mainWindow.loadFile(path.join(__dirname, "/dist/test-desktop-electron-app/index.html"));
   
-  mainWindow.on('closed', function () {
-    mainWindow = null
-  })
+  mainWindow.webContents.openDevTools();
 
-  // mainWindow.setBackgroundColor('#56cc5b10')
   mainWindow.setAlwaysOnTop(true);
   mainWindow.show();
 }
 
-app.on('ready', createWindow)
+
+app.whenReady().then(() => {
+  ipcMain.on('set-title', handleSetTitle)
+  createWindow()
+  
+  app.on('activate', function () {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
+})
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
-})
-
-app.on('activate', function () {
-  if (mainWindow === null) createWindow()
 })
