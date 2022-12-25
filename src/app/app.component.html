@@ -1,10 +1,17 @@
-<button (click) = "addDistraction()">Distraction</button>
-<button (click) = "showMotivation()">Boost</button>
-<button>Punitions</button>
-<button>Imprévu</button>
-<button>Plannifier</button>
-<p>{{text}}</p>
-<h1>contenu index.html dans dossier src</h1>
-Title: <input #box/>
-<button (click) = "changeTitle(box.value)" >Set</button>
-<p>{{title}}</p>
+<div id="play">
+    <button *ngIf="!playing" (click) = "playing = true; start();">JOUER</button>
+</div>
+<figure [style.height.px] = "90">
+    <img #coin [style.height.px] = "coinHeight"  src="" style="display:none;">
+</figure>
+<div id="actions" *ngIf="playing">
+    <div>
+        <button (click) = "addDistraction()">Distraction</button>
+    </div>
+    <div>
+        <button (click) = "showMotivation()">Boost</button>
+    </div>
+    <div>
+        <button (click) = "addDistraction()">Distraction</button>
+    </div>
+</div>

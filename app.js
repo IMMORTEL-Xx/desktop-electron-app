@@ -1,46 +1,67 @@
-const {app, BrowserWindow, ipcMain} = require('electron');
+const {app, BrowserWindow, ipcMain, screen, document} = require('electron');
 const url = require("url");
 const path = require('path');
 
-
 let mainWindow;
+let screenWidth;
+let screenHeight;
+let appWidth = 120;
+let appHeight = 300;
 
-function handleSetTitle (event, title) {
-  const webContents = event.sender;
+function handleSetTitlee (eventt, titlee) {
+  const webContents = eventt.sender;
   const win = BrowserWindow.fromWebContents(webContents);
-  win.setTitle(title);
+  win.setTitle(titlee);
+}
+
+function handleSetXPosition (eventt, x) {
+  const webContents = eventt.sender;
+  const win = BrowserWindow.fromWebContents(webContents);
+  win.setPosition(x, 300);
+
 }
 
 function createWindow () {
+  screenWidth = screen.getPrimaryDisplay().size.width;
+  screenHeight = screen.getPrimaryDisplay().size.height;
   mainWindow = new BrowserWindow({
+  frame: false,
+  transparent:true,
   //titleBarStyle: 'hidden',
-  width: 100,
-  height: 400,
+  width: appWidth,
+  height: appHeight,
+  x: screenWidth - appWidth,
+  y: (screenHeight - appHeight)/2,
+  
   webPreferences: {
+    
     nodeIntegration: true,
-    devTools: true,
+    devTools: false,
       preload: path.join(__dirname, 'preload.js')
     }
   })
 
-  ipcMain.on('set-title', (event, title) => {
-    const webContents = event.sender
-    const win = BrowserWindow.fromWebContents(webContents)
-    win.setTitle(title)
-  })
+  //verifier à quoi sert ce code car je peux modifier le titre depuis un component sans lui
+  // ipcMain.on('set-title', (event, title) => {
+  //   const webContents = event.sender
+  //   const win = BrowserWindow.fromWebContents(webContents)
+  //   win.setTitle(title)
+  // })
+  //
   mainWindow.loadFile(path.join(__dirname, "/dist/test-desktop-electron-app/index.html"));
   
   mainWindow.webContents.openDevTools();
-
-  mainWindow.setAlwaysOnTop(true);
+  mainWindow.setAlwaysOnTop(true, "screen-saver");
+  mainWindow.setVisibleOnAllWorkspaces(true);
   mainWindow.show();
 }
 
 
 app.whenReady().then(() => {
-  ipcMain.on('set-title', handleSetTitle)
-  createWindow()
-  
+  ipcMain.on('set-title', handleSetTitlee);
+  ipcMain.on('set-x', handleSetXPosition);
+  createWindow();
+  mainWindow.focus(),
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
