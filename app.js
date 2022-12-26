@@ -5,8 +5,8 @@ const path = require('path');
 let mainWindow;
 let screenWidth;
 let screenHeight;
-let appWidth = 120;
-let appHeight = 300;
+let appWidth = 160;
+let appHeight = 200;
 
 function handleSetTitlee (eventt, titlee) {
   const webContents = eventt.sender;
@@ -33,8 +33,8 @@ function createWindow () {
   x: screenWidth - appWidth,
   y: (screenHeight - appHeight)/2,
   
+  
   webPreferences: {
-    
     nodeIntegration: true,
     devTools: false,
       preload: path.join(__dirname, 'preload.js')
@@ -62,6 +62,7 @@ app.whenReady().then(() => {
   ipcMain.on('set-x', handleSetXPosition);
   createWindow();
   mainWindow.focus(),
+  //mainWindow.setIgnoreMouseEvents(true);
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
